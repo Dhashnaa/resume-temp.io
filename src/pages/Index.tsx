@@ -1,40 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthScreen } from "@/components/AuthScreen";
 import { Dashboard } from "@/components/Dashboard";
 import { ResumeForm } from "@/components/ResumeForm";
 import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
+import { ResumeData } from "@/hooks/useResumes";
+import { Toaster } from "@/components/ui/toaster";
 
 type AppState = "auth" | "dashboard" | "form";
 
 const Index = () => {
-  const [appState, setAppState] = useState<AppState>("auth");
+  const { user, loading } = useAuth();
+  const [appState, setAppState] = useState<AppState>("dashboard");
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [editingResumeId, setEditingResumeId] = useState<string | undefined>();
+  const [aiGeneratedData, setAIGeneratedData] = useState<ResumeData | undefined>();
 
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-    setAppState("dashboard");
-  };
+  useEffect(() => {
+    if (user) {
+      setAppState("dashboard");
+    }
+  }, [user]);
 
   const handleCreateNew = () => {
+    setEditingResumeId(undefined);
+    setAIGeneratedData(undefined);
     setAppState("form");
     setActiveTab("create");
   };
 
   const handleEditResume = (id: string) => {
+    setEditingResumeId(id);
+    setAIGeneratedData(undefined);
     setAppState("form");
     setActiveTab("create");
   };
 
-  const handleSaveResume = (data: any) => {
-    // Here you would save to Supabase
-    console.log("Saving resume:", data);
-    setAppState("dashboard");
-    setActiveTab("dashboard");
+  const handleAIGenerate = (resumeData: ResumeData) => {
+    setEditingResumeId(undefined);
+    setAIGeneratedData(resumeData);
+    setAppState("form");
+    setActiveTab("create");
   };
 
   const handleCancelForm = () => {
+    setEditingResumeId(undefined);
+    setAIGeneratedData(undefined);
     setAppState("dashboard");
     setActiveTab("dashboard");
   };
@@ -48,8 +60,24 @@ const Index = () => {
     }
   };
 
-  if (!isAuthenticated) {
-    return <AuthScreen onLogin={handleLogin} />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <>
+        <AuthScreen />
+        <Toaster />
+      </>
+    );
   }
 
   return (
@@ -71,13 +99,15 @@ const Index = () => {
             <Dashboard 
               onCreateNew={handleCreateNew}
               onEditResume={handleEditResume}
+              onAIGenerate={handleAIGenerate}
             />
           )}
           
           {appState === "form" && (
             <ResumeForm
-              onSave={handleSaveResume}
               onCancel={handleCancelForm}
+              editingId={editingResumeId}
+              aiGeneratedData={aiGeneratedData}
             />
           )}
 
@@ -105,6 +135,7 @@ const Index = () => {
       <div className="md:hidden">
         <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
       </div>
+      <Toaster />
     </div>
   );
 };

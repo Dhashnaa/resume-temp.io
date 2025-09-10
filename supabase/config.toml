@@ -1,1 +1,4 @@
 project_id = "eovfopjbfmwdsfcjmxsr"
+
+[functions.ai-resume-builder]
+verify_jwt = false

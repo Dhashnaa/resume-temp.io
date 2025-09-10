@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,10 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Save, Plus, Trash2 } from "lucide-react";
+import { Save, Plus, Trash2, Sparkles } from "lucide-react";
+import { useResumes, ResumeData } from "@/hooks/useResumes";
+import { useToast } from "@/components/ui/use-toast";
 
-type ResumeData = {
-  personal: {
+type FormData = {
+  title: string;
+  personal_info: {
     name: string;
     email: string;
     phone: string;
@@ -30,8 +33,9 @@ type ResumeData = {
   skills: string[];
 };
 
-const initialData: ResumeData = {
-  personal: {
+const initialData: FormData = {
+  title: "My Resume",
+  personal_info: {
     name: "",
     email: "",
     phone: "",
@@ -44,19 +48,41 @@ const initialData: ResumeData = {
 };
 
 type ResumeFormProps = {
-  onSave: (data: ResumeData) => void;
   onCancel: () => void;
   initialData?: ResumeData;
+  editingId?: string;
+  aiGeneratedData?: ResumeData;
 };
 
-export function ResumeForm({ onSave, onCancel, initialData: data = initialData }: ResumeFormProps) {
-  const [formData, setFormData] = useState<ResumeData>(data);
+export function ResumeForm({ onCancel, initialData, editingId, aiGeneratedData }: ResumeFormProps) {
+  const { saveResume, improveResumeWithAI } = useResumes();
+  const { toast } = useToast();
+  const [formData, setFormData] = useState<FormData>(initialData ? {
+    title: initialData.title,
+    personal_info: initialData.personal_info,
+    education: initialData.education,
+    experience: initialData.experience,
+    skills: initialData.skills,
+  } : initialData);
   const [newSkill, setNewSkill] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (aiGeneratedData) {
+      setFormData({
+        title: aiGeneratedData.title || "AI Generated Resume",
+        personal_info: aiGeneratedData.personal_info,
+        education: aiGeneratedData.education,
+        experience: aiGeneratedData.experience,
+        skills: aiGeneratedData.skills,
+      });
+    }
+  }, [aiGeneratedData]);
 
   const updatePersonal = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
-      personal: { ...prev.personal, [field]: value }
+      personal_info: { ...prev.personal_info, [field]: value }
     }));
   };
 
@@ -123,26 +149,82 @@ export function ResumeForm({ onSave, onCancel, initialData: data = initialData }
     }));
   };
 
-  const handleSave = () => {
-    onSave(formData);
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      const resumeData: ResumeData = {
+        ...(editingId && { id: editingId }),
+        ...formData,
+      };
+      await saveResume(resumeData);
+      onCancel(); // Go back to dashboard after saving
+    } catch (error) {
+      console.error('Save error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImproveWithAI = async () => {
+    setLoading(true);
+    try {
+      const resumeData: ResumeData = {
+        ...(editingId && { id: editingId }),
+        ...formData,
+      };
+      const improvedData = await improveResumeWithAI(resumeData);
+      setFormData({
+        title: improvedData.title || formData.title,
+        personal_info: improvedData.personal_info,
+        education: improvedData.education,
+        experience: improvedData.experience,
+        skills: improvedData.skills,
+      });
+      toast({
+        title: "Resume Improved!",
+        description: "AI has enhanced your resume with better content and formatting.",
+      });
+    } catch (error) {
+      console.error('Improve error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-          Create Resume
+          {editingId ? "Edit Resume" : "Create Resume"}
         </h1>
         <div className="flex gap-2">
           <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button onClick={handleSave} variant="hero">
+          <Button onClick={handleImproveWithAI} variant="outline" disabled={loading}>
+            <Sparkles className="h-4 w-4" />
+            {loading ? "Improving..." : "Improve with AI"}
+          </Button>
+          <Button onClick={handleSave} variant="hero" disabled={loading}>
             <Save className="h-4 w-4" />
-            Save Resume
+            {loading ? "Saving..." : "Save Resume"}
           </Button>
         </div>
       </div>
+
+      {/* Resume Title */}
+      <Card className="animate-scale-in">
+        <CardHeader>
+          <CardTitle>Resume Title</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Input
+            value={formData.title}
+            onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+            placeholder="e.g., Software Engineer Resume"
+          />
+        </CardContent>
+      </Card>
 
       {/* Personal Information */}
       <Card className="animate-scale-in">
@@ -155,7 +237,7 @@ export function ResumeForm({ onSave, onCancel, initialData: data = initialData }
               <Label htmlFor="name">Full Name</Label>
               <Input
                 id="name"
-                value={formData.personal.name}
+                value={formData.personal_info.name}
                 onChange={(e) => updatePersonal("name", e.target.value)}
                 placeholder="John Doe"
               />
@@ -165,7 +247,7 @@ export function ResumeForm({ onSave, onCancel, initialData: data = initialData }
               <Input
                 id="email"
                 type="email"
-                value={formData.personal.email}
+                value={formData.personal_info.email}
                 onChange={(e) => updatePersonal("email", e.target.value)}
                 placeholder="john@example.com"
               />
@@ -174,7 +256,7 @@ export function ResumeForm({ onSave, onCancel, initialData: data = initialData }
               <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
-                value={formData.personal.phone}
+                value={formData.personal_info.phone}
                 onChange={(e) => updatePersonal("phone", e.target.value)}
                 placeholder="+1 (555) 123-4567"
               />
@@ -183,7 +265,7 @@ export function ResumeForm({ onSave, onCancel, initialData: data = initialData }
               <Label htmlFor="location">Location</Label>
               <Input
                 id="location"
-                value={formData.personal.location}
+                value={formData.personal_info.location}
                 onChange={(e) => updatePersonal("location", e.target.value)}
                 placeholder="San Francisco, CA"
               />
@@ -193,7 +275,7 @@ export function ResumeForm({ onSave, onCancel, initialData: data = initialData }
             <Label htmlFor="summary">Professional Summary</Label>
             <Textarea
               id="summary"
-              value={formData.personal.summary}
+              value={formData.personal_info.summary}
               onChange={(e) => updatePersonal("summary", e.target.value)}
               placeholder="Brief summary of your professional background and key achievements..."
               className="min-h-[100px]"
