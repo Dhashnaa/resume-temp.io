@@ -117,29 +117,36 @@ export function Profile() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
+    <div className="max-w-4xl mx-auto space-y-8 p-6">
+      <div className="text-center mb-8 animate-fade-up">
+        <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">Profile</h1>
+        <p className="text-muted-foreground text-lg">Manage your personal information and account settings</p>
+      </div>
+      
+      <Card className="shadow-elegant border-0 bg-card/80 backdrop-blur-sm animate-scale-in">
+        <CardHeader className="text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-primary opacity-10"></div>
+          <CardTitle className="flex items-center justify-center gap-2 relative z-10">
+            <User className="h-6 w-6" />
             Profile Information
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="relative z-10 text-base">
             Manage your personal information and account settings.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Avatar Section */}
-          <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20">
+          <div className="flex flex-col sm:flex-row items-center gap-6 p-6 bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg border">
+            <Avatar className="h-32 w-32 shadow-glow ring-4 ring-primary/20">
               <AvatarImage src={profile.avatar_url} />
-              <AvatarFallback className="text-lg">
+              <AvatarFallback className="text-2xl font-bold bg-gradient-primary text-white">
                 {profile.full_name ? getInitials(profile.full_name) : 'U'}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <p className="text-sm text-muted-foreground">Profile Picture</p>
-              <Button variant="outline" size="sm" className="mt-2">
+            <div className="text-center sm:text-left">
+              <h3 className="text-xl font-semibold mb-2">{profile.full_name || 'Your Name'}</h3>
+              <p className="text-muted-foreground mb-4">Profile Picture</p>
+              <Button variant="outline" size="sm" className="hover:bg-primary hover:text-primary-foreground transition-colors">
                 Change Photo
               </Button>
             </div>
@@ -185,10 +192,14 @@ export function Profile() {
             )}
           </div>
 
-          <Button onClick={handleSave} disabled={saving} className="w-full">
+          <Button 
+            onClick={handleSave} 
+            disabled={saving} 
+            className="w-full bg-gradient-primary hover:opacity-90 shadow-elegant text-lg py-6"
+          >
             {saving ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 Saving...
               </>
             ) : (
@@ -199,19 +210,27 @@ export function Profile() {
       </Card>
 
       {/* Account Stats */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Account Statistics</CardTitle>
+      <Card className="shadow-card border-0 bg-card/60 backdrop-blur-sm animate-fade-up">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">Account Statistics</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4 text-center">
-            <div>
-              <p className="text-2xl font-bold text-primary">0</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5">
+              <p className="text-3xl font-bold text-primary mb-1">0</p>
               <p className="text-sm text-muted-foreground">Resumes Created</p>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-primary">0</p>
+            <div className="p-4 rounded-lg bg-gradient-to-br from-accent/10 to-accent/5">
+              <p className="text-3xl font-bold text-accent mb-1">0</p>
               <p className="text-sm text-muted-foreground">Templates Used</p>
+            </div>
+            <div className="p-4 rounded-lg bg-gradient-to-br from-success/10 to-success/5">
+              <p className="text-3xl font-bold text-success mb-1">0</p>
+              <p className="text-sm text-muted-foreground">Downloads</p>
+            </div>
+            <div className="p-4 rounded-lg bg-gradient-to-br from-secondary/10 to-secondary/5">
+              <p className="text-3xl font-bold text-secondary-foreground mb-1">0</p>
+              <p className="text-sm text-muted-foreground">AI Improvements</p>
             </div>
           </div>
         </CardContent>

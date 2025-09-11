@@ -49,14 +49,20 @@ export function Settings() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <SettingsIcon className="h-5 w-5" />
+    <div className="max-w-4xl mx-auto space-y-8 p-6">
+      <div className="text-center mb-8 animate-fade-up">
+        <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">Settings</h1>
+        <p className="text-muted-foreground text-lg">Customize your resume builder experience</p>
+      </div>
+      
+      <Card className="shadow-elegant border-0 bg-card/80 backdrop-blur-sm animate-scale-in">
+        <CardHeader className="text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-primary opacity-10"></div>
+          <CardTitle className="flex items-center justify-center gap-2 relative z-10 text-2xl">
+            <SettingsIcon className="h-6 w-6" />
             Application Settings
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="relative z-10 text-base">
             Customize your resume builder experience.
           </CardDescription>
         </CardHeader>
@@ -140,10 +146,10 @@ export function Settings() {
       </Card>
 
       {/* Account Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Account Management</CardTitle>
-          <CardDescription>
+      <Card className="shadow-card border-0 bg-card/60 backdrop-blur-sm animate-fade-up">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">Account Management</CardTitle>
+          <CardDescription className="text-base">
             Manage your account data and security.
           </CardDescription>
         </CardHeader>
