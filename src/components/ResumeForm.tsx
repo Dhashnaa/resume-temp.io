@@ -33,7 +33,7 @@ type FormData = {
   skills: string[];
 };
 
-const initialData: FormData = {
+const defaultFormData: FormData = {
   title: "My Resume",
   personal_info: {
     name: "",
@@ -63,7 +63,7 @@ export function ResumeForm({ onCancel, initialData, editingId, aiGeneratedData }
     education: initialData.education,
     experience: initialData.experience,
     skills: initialData.skills,
-  } : initialData);
+  } : defaultFormData);
   const [newSkill, setNewSkill] = useState("");
   const [loading, setLoading] = useState(false);
 
