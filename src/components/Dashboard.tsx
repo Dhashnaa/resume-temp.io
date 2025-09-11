@@ -11,10 +11,12 @@ import {
   Eye,
   Calendar,
   Sparkles,
-  Bot
+  Bot,
+  Upload
 } from "lucide-react";
 import { useResumes } from "@/hooks/useResumes";
 import { AIAssistant } from "./AIAssistant";
+import { FileUpload } from "./FileUpload";
 
 type DashboardProps = {
   onCreateNew: () => void;
@@ -25,6 +27,7 @@ type DashboardProps = {
 export function Dashboard({ onCreateNew, onEditResume, onAIGenerate }: DashboardProps) {
   const { resumes, loading, deleteResume, improveResumeWithAI } = useResumes();
   const [showAI, setShowAI] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
 
   const handleImproveWithAI = async (resumeId: string) => {
     const resume = resumes.find(r => r.id === resumeId);
@@ -65,6 +68,10 @@ export function Dashboard({ onCreateNew, onEditResume, onAIGenerate }: Dashboard
             <Bot className="h-4 w-4" />
             AI Assistant
           </Button>
+          <Button onClick={() => setShowUpload(true)} variant="outline">
+            <Upload className="h-4 w-4" />
+            Upload Resume
+          </Button>
           <Button onClick={onCreateNew} variant="hero">
             <Plus className="h-4 w-4" />
             Create New Resume
@@ -74,6 +81,33 @@ export function Dashboard({ onCreateNew, onEditResume, onAIGenerate }: Dashboard
 
       {showAI && (
         <AIAssistant onResumeGenerated={onAIGenerate} />
+      )}
+
+      {showUpload && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-background rounded-lg max-w-lg w-full max-h-[90vh] overflow-auto">
+            <div className="p-4 border-b">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold">Upload Resume</h2>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setShowUpload(false)}
+                >
+                  ✕
+                </Button>
+              </div>
+            </div>
+            <div className="p-4">
+              <FileUpload 
+                onUploadSuccess={(resumeData) => {
+                  setShowUpload(false);
+                  onAIGenerate(resumeData);
+                }}
+              />
+            </div>
+          </div>
+        </div>
       )}
 
       {resumes.length === 0 ? (
@@ -91,6 +125,10 @@ export function Dashboard({ onCreateNew, onEditResume, onAIGenerate }: Dashboard
             <Button onClick={() => setShowAI(true)} variant="outline">
               <Sparkles className="h-4 w-4" />
               Generate with AI
+            </Button>
+            <Button onClick={() => setShowUpload(true)} variant="outline">
+              <Upload className="h-4 w-4" />
+              Upload Resume
             </Button>
           </div>
         </Card>

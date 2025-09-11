@@ -3,7 +3,8 @@ import { AuthScreen } from "@/components/AuthScreen";
 import { Dashboard } from "@/components/Dashboard";
 import { ResumeForm } from "@/components/ResumeForm";
 import { Navigation } from "@/components/Navigation";
-import { Card } from "@/components/ui/card";
+import { Profile } from "@/components/Profile";
+import { Settings } from "@/components/Settings";
 import { useAuth } from "@/hooks/useAuth";
 import { ResumeData } from "@/hooks/useResumes";
 import { Toaster } from "@/components/ui/toaster";
@@ -111,23 +112,9 @@ const Index = () => {
             />
           )}
 
-          {activeTab === "profile" && (
-            <Card className="p-8 text-center animate-fade-up">
-              <h2 className="text-2xl font-bold mb-4">Profile Settings</h2>
-              <p className="text-muted-foreground">
-                Connect to Supabase to enable user profiles and authentication.
-              </p>
-            </Card>
-          )}
+          {activeTab === "profile" && <Profile />}
 
-          {activeTab === "settings" && (
-            <Card className="p-8 text-center animate-fade-up">
-              <h2 className="text-2xl font-bold mb-4">App Settings</h2>
-              <p className="text-muted-foreground">
-                Theme toggle and other settings available in the navigation.
-              </p>
-            </Card>
-          )}
+          {activeTab === "settings" && <Settings />}
         </div>
       </div>
 
