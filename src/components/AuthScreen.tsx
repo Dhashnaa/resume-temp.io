@@ -5,24 +5,47 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { FileText, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
-type AuthScreenProps = {
-  onLogin: () => void;
-};
-
-export function AuthScreen({ onLogin }: AuthScreenProps) {
+export function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     name: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { signIn, signUp } = useAuth();
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For demo purposes, just call onLogin
-    onLogin();
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        const { error } = await signIn(formData.email, formData.password);
+        if (error) throw error;
+      } else {
+        const { error } = await signUp(formData.email, formData.password, formData.name);
+        if (error) throw error;
+        toast({
+          title: "Account created!",
+          description: "Please check your email to verify your account.",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateField = (field: string, value: string) => {
@@ -114,8 +137,8 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
               </div>
             </div>
 
-            <Button type="submit" variant="hero" className="w-full" size="lg">
-              {isLogin ? "Sign In" : "Create Account"}
+            <Button type="submit" variant="hero" className="w-full" size="lg" disabled={loading}>
+              {loading ? "Loading..." : isLogin ? "Sign In" : "Create Account"}
             </Button>
           </form>
 
