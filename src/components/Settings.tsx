@@ -15,7 +15,9 @@ export function Settings() {
   const { toast } = useToast();
   const [notifications, setNotifications] = useState(true);
   const [autoSave, setAutoSave] = useState(true);
-  const [downloadFormat, setDownloadFormat] = useState("pdf");
+  const [downloadFormat, setDownloadFormat] = useState<string>(() => {
+    try { return localStorage.getItem('downloadFormat') || 'pdf'; } catch { return 'pdf'; }
+  });
 
   const handleSignOut = async () => {
     try {
@@ -131,7 +133,7 @@ export function Settings() {
             
             <div>
               <Label htmlFor="format" className="text-sm">Default Download Format</Label>
-              <Select value={downloadFormat} onValueChange={setDownloadFormat}>
+              <Select value={downloadFormat} onValueChange={(v) => { setDownloadFormat(v); try { localStorage.setItem('downloadFormat', v); } catch {} }}>
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>

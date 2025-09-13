@@ -19,6 +19,7 @@ import {
 import { useResumes } from "@/hooks/useResumes";
 import { AIAssistant } from "./AIAssistant";
 import { FileUpload } from "./FileUpload";
+import { exportResume } from "@/utils/exportResume";
 
 type DashboardProps = {
   onCreateNew: () => void;
@@ -54,6 +55,24 @@ export function Dashboard({ onCreateNew, onEditResume, onAIGenerate }: Dashboard
       });
     } finally {
       setImprovingId(null);
+    }
+  };
+
+  const handleDownload = async (resume: any) => {
+    try {
+      const format = (typeof window !== 'undefined' && localStorage.getItem('downloadFormat')) || 'pdf';
+      await exportResume(resume as any, format as any);
+      toast({
+        title: "Download started",
+        description: `Your resume is being downloaded as ${format.toUpperCase()}.`,
+      });
+    } catch (error) {
+      console.error('Failed to download resume:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download resume. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -236,6 +255,7 @@ export function Dashboard({ onCreateNew, onEditResume, onAIGenerate }: Dashboard
                         Preview
                       </Button>
                       <Button 
+                        onClick={() => handleDownload(resume)}
                         variant="outline" 
                         size="sm"
                         className="gap-2 hover:bg-success hover:text-success-foreground transition-colors"
