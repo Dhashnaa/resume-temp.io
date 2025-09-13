@@ -49,8 +49,12 @@ export type Database = {
           created_at: string
           education: Json
           experience: Json
+          file_name: string | null
+          file_path: string | null
+          file_size: number | null
           id: string
           is_public: boolean | null
+          mime_type: string | null
           personal_info: Json
           skills: Json
           template_type: string | null
@@ -62,8 +66,12 @@ export type Database = {
           created_at?: string
           education?: Json
           experience?: Json
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
           id?: string
           is_public?: boolean | null
+          mime_type?: string | null
           personal_info?: Json
           skills?: Json
           template_type?: string | null
@@ -75,8 +83,12 @@ export type Database = {
           created_at?: string
           education?: Json
           experience?: Json
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
           id?: string
           is_public?: boolean | null
+          mime_type?: string | null
           personal_info?: Json
           skills?: Json
           template_type?: string | null

@@ -240,18 +240,57 @@ export function useResumes() {
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
-      const { data, error } = await supabase.storage
+      // Upload file to storage
+      const { data: storageData, error: storageError } = await supabase.storage
         .from('resumes')
         .upload(fileName, file);
 
-      if (error) throw error;
+      if (storageError) throw storageError;
+
+      // Create resume record in database
+      const resumeData = {
+        user_id: user.id,
+        title: `Uploaded Resume - ${file.name}`,
+        personal_info: { name: '', email: '', phone: '', location: '', summary: '' },
+        education: [],
+        experience: [],
+        skills: [],
+        template_type: 'modern',
+        file_path: storageData.path,
+        file_name: file.name,
+        file_size: file.size,
+        mime_type: file.type,
+      };
+
+      const { data: dbData, error: dbError } = await supabase
+        .from('resumes')
+        .insert(resumeData)
+        .select()
+        .single();
+
+      if (dbError) throw dbError;
+
+      // Update local state
+      setResumes(prev => [{
+        ...dbData,
+        personal_info: dbData.personal_info as any,
+        education: dbData.education as any,
+        experience: dbData.experience as any,
+        skills: dbData.skills as any,
+      }, ...prev]);
 
       toast({
         title: "Success",
-        description: "Resume file uploaded successfully",
+        description: "Resume file uploaded and saved successfully",
       });
 
-      return data;
+      return {
+        ...dbData,
+        personal_info: dbData.personal_info as any,
+        education: dbData.education as any,
+        experience: dbData.experience as any,
+        skills: dbData.skills as any,
+      };
     } catch (error: any) {
       toast({
         title: "Error",

@@ -82,8 +82,7 @@ serve(async (req) => {
           { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt }
         ],
-        temperature: 0.7,
-        max_tokens: 2000,
+        max_completion_tokens: 2000,
       }),
     });
 
@@ -94,9 +93,19 @@ serve(async (req) => {
     const data = await response.json();
     const result = data.choices[0].message.content;
 
+    let parsedResult = result;
+    if (action !== 'answer_query') {
+      try {
+        parsedResult = JSON.parse(result);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        throw new Error('Invalid JSON response from AI');
+      }
+    }
+
     return new Response(JSON.stringify({ 
       success: true, 
-      result: action === 'answer_query' ? result : JSON.parse(result)
+      result: parsedResult
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

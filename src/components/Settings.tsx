@@ -49,11 +49,12 @@ export function Settings() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 p-6">
-      <div className="text-center mb-8 animate-fade-up">
-        <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">Settings</h1>
-        <p className="text-muted-foreground text-lg">Customize your resume builder experience</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="container mx-auto px-4 py-8 space-y-8 animate-fade-up">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">Settings</h1>
+          <p className="text-muted-foreground text-lg">Customize your resume builder experience</p>
+        </div>
       
       <Card className="shadow-elegant border-0 bg-card/80 backdrop-blur-sm animate-scale-in">
         <CardHeader className="text-center relative overflow-hidden">
@@ -187,6 +188,7 @@ export function Settings() {
           </p>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
